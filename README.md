@@ -195,7 +195,7 @@ uvicorn api.main:app --reload --port 8000
 
 API docs available at: http://localhost:8000/docs
 
-### Step 5 — Start Streamlit frontend
+### Step 5 — Start Streamlit frontend (Optional/Legacy)
 
 ```bash
 cd app
@@ -203,6 +203,16 @@ streamlit run main.py
 ```
 
 App available at: http://localhost:8501
+
+### Step 6 — Start React.js frontend (New SPA)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+App available at: http://localhost:3000
 
 ---
 
@@ -231,7 +241,7 @@ App available at: http://localhost:8501
 
 | Layer | Technology |
 |---|---|
-| Frontend | Streamlit |
+| Frontend | React.js (Vite, React Router v6, Recharts, Lucide-React) / Streamlit |
 | Backend | FastAPI |
 | CNN Model | PyTorch, ResNet-50 |
 | ML Models | XGBoost, Random Forest, scikit-learn |
