@@ -18,7 +18,7 @@ MedVision AI combines three AI modules into a single web application:
 
 ```mermaid
 flowchart TD
-    subgraph Frontend["Streamlit Frontend (app/)"]
+    subgraph Frontend["React.js Frontend (frontend/)"]
         A1[X-Ray Upload Page]
         A2[Risk Prediction Form]
         A3[MedBot Chatbot]
@@ -82,13 +82,17 @@ medvision-ai/
 │       ├── xray.py              # POST /analyze-image
 │       ├── risk.py              # POST /predict-risk
 │       └── chat.py              # POST /rag-chat
-├── app/
+├── app/                         # Streamlit frontend (Optional/Legacy)
 │   ├── main.py                  # Streamlit entry point
-│   ├── page0_home.py
-│   ├── page1_xray.py
-│   ├── page2_risk.py
-│   ├── page3_chatbot.py
-│   └── page4_eda.py
+│   └── ...
+├── frontend/                    # React JS frontend (SPA)
+│   ├── src/
+│   │   ├── components/          # Navbar, Footer, Feature/Stat cards
+│   │   ├── pages/               # Home, XRay, Risk, Chat, Dashboard, Contact
+│   │   ├── api/                 # Axios configuration (medvisionApi.js)
+│   │   └── styles/              # Design styling (globals.css)
+│   ├── package.json
+│   └── vite.config.js
 ├── config/
 │   ├── rag_config.py            # All RAG settings
 │   └── .env                     # API keys (not committed)
@@ -115,8 +119,8 @@ medvision-ai/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/medvision-ai.git
-cd medvision-ai
+git clone https://github.com/SydDwit/MedVision-AI.git
+cd MedVision-AI
 ```
 
 ### 2. Create a virtual environment
