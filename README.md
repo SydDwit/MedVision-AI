@@ -258,3 +258,4 @@ App available at: http://localhost:3000
 ## Reference
 
 Lim, W. S., et al. (2003). Defining community acquired pneumonia severity on presentation to hospital: an international derivation and validation study. *Thorax*, 58(5), 377–382.
+[README.md](https://github.com/user-attachments/files/28318967/README.md)
