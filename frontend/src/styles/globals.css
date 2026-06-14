@@ -683,11 +683,20 @@ p {
 }
 
 /* --- CHAT INTERFACE --- */
+.chat-page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill the main panel height */
+  padding: var(--space-24) var(--space-24) var(--space-16) var(--space-24);
+  box-sizing: border-box;
+  gap: var(--space-16);
+}
+
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 180px);
-  min-height: 500px;
+  flex-grow: 1;
+  min-height: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   overflow: hidden;
@@ -971,3 +980,362 @@ p {
   gap: var(--space-16);
   padding: var(--space-48);
 }
+
+/* --- CONFIDENCE TOOLTIP --- */
+.confidence-badge-wrapper {
+  position: relative;
+  display: inline-flex;
+  cursor: default;
+}
+
+.confidence-badge-wrapper .confidence-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: 320px;
+  padding: 14px 18px;
+  background-color: #1F2937;
+  color: #F3F4F6;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0;
+  text-transform: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+  z-index: 50;
+}
+
+/* Tooltip arrow */
+.confidence-badge-wrapper .confidence-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #1F2937 transparent transparent transparent;
+}
+
+/* Show tooltip on hover and focus */
+.confidence-badge-wrapper:hover .confidence-tooltip,
+.confidence-badge-wrapper:focus-within .confidence-tooltip,
+.confidence-badge-wrapper.tooltip-active .confidence-tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0s;
+}
+
+/* Highlight text for the confidence value inside the tooltip */
+.confidence-tooltip .confidence-value {
+  color: #A78BFA;
+  font-weight: 700;
+}
+
+/* Subtle underline indicator on the badge to hint interactivity */
+.confidence-badge-wrapper > .badge-pill {
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.confidence-badge-wrapper:hover > .badge-pill {
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  transform: scale(1.03);
+}
+
+/* Scan history confidence - small inline tooltip */
+.confidence-badge-wrapper--sm .confidence-tooltip {
+  width: 280px;
+  bottom: calc(100% + 10px);
+  left: auto;
+  right: 0;
+  transform: translateX(0) translateY(4px);
+}
+
+.confidence-badge-wrapper--sm .confidence-tooltip::after {
+  left: auto;
+  right: 16px;
+  transform: none;
+}
+
+.confidence-badge-wrapper--sm:hover .confidence-tooltip,
+.confidence-badge-wrapper--sm:focus-within .confidence-tooltip,
+.confidence-badge-wrapper--sm.tooltip-active .confidence-tooltip {
+  transform: translateX(0) translateY(0);
+}
+
+/* --- REJECTION CARD (Gatekeeper) --- */
+.rejection-card {
+  border-left: 6px solid #F59E0B;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.02), var(--background));
+}
+
+.rejection-card .card-top {
+  gap: var(--space-16);
+}
+
+/* --- SIDEBAR NAVIGATION REDESIGN --- */
+:root {
+  --sidebar-width-expanded: 260px;
+  --sidebar-width-collapsed: 80px;
+  --sidebar-transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #ffffff;
+  border-right: 1px solid var(--border);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: var(--sidebar-transition);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.sidebar--expanded {
+  width: var(--sidebar-width-expanded);
+}
+
+.sidebar--collapsed {
+  width: var(--sidebar-width-collapsed);
+}
+
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: padding 0.3s ease;
+}
+
+.sidebar--collapsed .sidebar-top {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar-avatar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(16, 185, 129, 0.08);
+  color: #10B981;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-avatar-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.sidebar-avatar-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sidebar-avatar-role {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: var(--background-alt);
+  color: var(--text-primary);
+}
+
+.sidebar-menu {
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Hide scrollbar for sidebar menu */
+.sidebar-menu::-webkit-scrollbar {
+  display: none;
+}
+.sidebar-menu {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.sidebar-separator {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94A3B8; /* gray separator */
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 16px 12px 6px 12px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+  text-align: left;
+}
+
+.sidebar--collapsed .sidebar-separator {
+  opacity: 0;
+  padding: 0;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  height: 44px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  justify-content: flex-start;
+}
+
+.sidebar-item:hover {
+  background-color: var(--background-alt);
+  color: var(--text-primary);
+}
+
+.sidebar-item.active {
+  background-color: rgba(16, 185, 129, 0.05); /* very soft light green */
+  border-color: #10B981; /* solid green border */
+  color: #10B981; /* active green text */
+  font-weight: 600;
+}
+
+.sidebar-item-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.sidebar-item-label {
+  transition: opacity 0.2s ease;
+  opacity: 1;
+}
+
+.sidebar--collapsed .sidebar-item {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.sidebar--collapsed .sidebar-item-label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  display: none;
+}
+
+.sidebar-bottom {
+  border-top: 1px solid rgba(0, 0, 0, 0.03);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+}
+
+/* --- CUSTOM RANGE SLIDER INPUTS --- */
+.form-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  margin: 14px 0;
+  cursor: pointer;
+  display: block;
+}
+
+.form-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.form-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: var(--primary-light, var(--primary));
+}
+
+.form-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.form-range::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  background: var(--primary-light, var(--primary));
+}
+

@@ -73,6 +73,18 @@ def show():
                                 st.metric(label=cls, value=f"{prob}%")
                                 st.progress(int(prob))
 
+                        elif response.status_code == 422:
+                            # Gatekeeper rejection — image is not a chest X-ray
+                            rejection = response.json()
+                            st.warning("⚠️ Image Not Recognized")
+                            st.markdown(
+                                f"**{rejection.get('message', 'This image does not appear to be a chest X-ray.')}**"
+                            )
+                            st.markdown(
+                                "The gatekeeper model could not confirm this image as a chest radiograph. "
+                                "Only anterior-posterior (AP) or posterior-anterior (PA) chest X-rays "
+                                "are accepted for pneumonia analysis."
+                            )
                         else:
                             st.error(
                                 f"API Error: {response.json().get('detail', 'Unknown error')}"

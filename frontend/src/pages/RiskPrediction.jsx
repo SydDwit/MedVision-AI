@@ -176,64 +176,74 @@ export const RiskPrediction = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group">
-                <label className="form-label">Temperature (°C)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label">Temperature (°C)</label>
+                  <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--primary)' }}>{formData.temperature_celsius} °C</span>
+                </div>
                 <input 
-                  type="number" 
+                  type="range" 
                   step="0.1" min="35" max="42"
-                  className="form-input" 
+                  className="form-range" 
                   value={formData.temperature_celsius} 
                   onChange={(e) => handleInputChange('temperature_celsius', parseFloat(e.target.value) || 37.0)}
-                  required
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Oxygen Saturation - SpO2 (%)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label">Oxygen Saturation - SpO2 (%)</label>
+                  <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--primary)' }}>{formData.spo2_percent}%</span>
+                </div>
                 <input 
-                  type="number" 
+                  type="range" 
                   min="50" max="100"
-                  className="form-input" 
+                  className="form-range" 
                   value={formData.spo2_percent} 
                   onChange={(e) => handleInputChange('spo2_percent', parseFloat(e.target.value) || 95)}
-                  required
                 />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group">
-                <label className="form-label">Respiratory Rate (breaths/min)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label">Respiratory Rate (breaths/min)</label>
+                  <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--primary)' }}>{formData.respiratory_rate} bpm</span>
+                </div>
                 <input 
-                  type="number" 
+                  type="range" 
                   min="5" max="60"
-                  className="form-input" 
+                  className="form-range" 
                   value={formData.respiratory_rate} 
                   onChange={(e) => handleInputChange('respiratory_rate', parseFloat(e.target.value) || 18)}
-                  required
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Systolic Blood Pressure (mmHg)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label">Systolic Blood Pressure (mmHg)</label>
+                  <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--primary)' }}>{formData.blood_pressure_systolic} mmHg</span>
+                </div>
                 <input 
-                  type="number" 
+                  type="range" 
                   min="50" max="200"
-                  className="form-input" 
+                  className="form-range" 
                   value={formData.blood_pressure_systolic} 
                   onChange={(e) => handleInputChange('blood_pressure_systolic', parseFloat(e.target.value) || 120)}
-                  required
                 />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group">
-                <label className="form-label">WBC Count (×10³/µL)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label">WBC Count (×10³/µL)</label>
+                  <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--primary)' }}>{formData.wbc_count_x10} ×10³/µL</span>
+                </div>
                 <input 
-                  type="number" 
+                  type="range" 
                   step="0.1" min="1" max="30"
-                  className="form-input" 
+                  className="form-range" 
                   value={formData.wbc_count_x10} 
                   onChange={(e) => handleInputChange('wbc_count_x10', parseFloat(e.target.value) || 8.0)}
-                  required
                 />
               </div>
               <div className="form-group">

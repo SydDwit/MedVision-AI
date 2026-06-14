@@ -16,10 +16,15 @@ export const Chatbot = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const historyEndRef = useRef(null);
+  const chatHistoryRef = useRef(null);
 
   const scrollToBottom = () => {
-    historyEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatHistoryRef.current) {
+      chatHistoryRef.current.scrollTo({
+        top: chatHistoryRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   };
 
   // Scroll to bottom whenever messages or loading state changes
@@ -77,17 +82,23 @@ export const Chatbot = () => {
   };
 
   return (
-    <div className="section-padding container">
+    <div className="section-padding container" style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100vh', 
+      boxSizing: 'border-box',
+      paddingBottom: 'var(--space-32)' // slight adjustment to maximize chat height
+    }}>
       {/* Page Title */}
-      <div style={{ textAlign: 'left', marginBottom: 'var(--space-32)' }}>
+      <div style={{ textAlign: 'left', marginBottom: 'var(--space-32)', flexShrink: 0 }}>
         <span className="badge-pill" style={{ marginBottom: '16px' }}>
           <Bot size={14} style={{ color: 'var(--primary)' }} />
           <span>Retrieval-Augmented Medical AI</span>
         </span>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px' }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px', marginTop: '0' }}>
           MedBot Medical Chatbot
         </h1>
-        <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', maxWidth: '700px' }}>
+        <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0' }}>
           Consult clinical guidelines from WHO, CDC, and NIH. MedBot retrieves relevant document snippets and synthesizes answers using LLaMA 3.1.
         </p>
       </div>
@@ -115,7 +126,7 @@ export const Chatbot = () => {
         </div>
 
         {/* Chat Message History */}
-        <div className="chat-history">
+        <div className="chat-history" ref={chatHistoryRef}>
           {messages.map((msg) => (
             <ChatBubble
               key={msg.id}
@@ -150,8 +161,6 @@ export const Chatbot = () => {
               <span>{error}</span>
             </div>
           )}
-
-          <div ref={historyEndRef} />
         </div>
 
         {/* Chat Input Bar */}

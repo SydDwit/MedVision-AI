@@ -29,20 +29,48 @@ const apiClient = axios.create({
 
 export const medvisionApi = {
   /**
-   * Send a chest X-Ray file to be analyzed by the ResNet-50 CNN.
+   * Send a chest X-Ray file to be analyzed by the two-stage pipeline.
+   * Stage 1: Gatekeeper (MobileNetV2) validates the image is a chest X-ray.
+   * Stage 2: Diagnostic (ResNet-50) classifies NORMAL vs PNEUMONIA.
+   * 
    * @param {File} imageFile - The file object of the chest X-Ray.
-   * @returns {Promise<object>} { label, confidence, all_probs: { NORMAL, PNEUMONIA }, status }
+   * @returns {Promise<object>} 
+   *   Success: { label, confidence, all_probs, status: "success" }
+   *   Rejection: { status: "rejected", rejection_reason, message }
    */
   analyzeImage: async (imageFile) => {
     const formData = new FormData();
     formData.append('file', imageFile);
 
-    const response = await apiClient.post('/api/analyze-image', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      const response = await apiClient.post('/api/analyze-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (err) {
+      console.error("medvisionApi: analyzeImage request failed:", err);
+      if (err.response) {
+        console.error("medvisionApi: Error status:", err.response.status);
+        console.error("medvisionApi: Raw error data:", err.response.data);
+        
+        let data = err.response.data;
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data);
+          } catch (e) {
+            console.error("medvisionApi: Failed to parse error response data as JSON:", e);
+          }
+        }
+        
+        if (err.response.status === 422 && data?.status === 'rejected') {
+          console.warn("medvisionApi: Image was rejected by gatekeeper:", data);
+          return data;   // Return rejection as a structured result object
+        }
+      }
+      throw err;   // Re-throw all other errors (500, network, etc.)
+    }
   },
 
   /**

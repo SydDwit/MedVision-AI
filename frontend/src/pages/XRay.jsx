@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Activity, ShieldAlert, ArrowRight, CheckCircle2, AlertCircle, FileImage, Trash2 } from 'lucide-react';
+import { Upload, Activity, ShieldAlert, ShieldOff, ArrowRight, CheckCircle2, AlertCircle, FileImage, Trash2 } from 'lucide-react';
 import medvisionApi from '../api/medvisionApi';
 
 export const XRay = () => {
@@ -11,6 +11,7 @@ export const XRay = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const [rejection, setRejection] = useState(null);
   
   // Local scan history
   const [scanHistory, setScanHistory] = useState([
@@ -40,6 +41,7 @@ export const XRay = () => {
         setPreviewUrl(URL.createObjectURL(file));
         setError(null);
         setResult(null);
+        setRejection(null);
       } else {
         setError('Only image files (JPEG, PNG) are accepted.');
       }
@@ -54,6 +56,7 @@ export const XRay = () => {
         setPreviewUrl(URL.createObjectURL(file));
         setError(null);
         setResult(null);
+        setRejection(null);
       } else {
         setError('Only image files (JPEG, PNG) are accepted.');
       }
@@ -65,6 +68,7 @@ export const XRay = () => {
     setPreviewUrl(null);
     setResult(null);
     setError(null);
+    setRejection(null);
   };
 
   const handleAnalyze = async () => {
@@ -73,12 +77,21 @@ export const XRay = () => {
     setLoading(true);
     setError(null);
     setResult(null);
+    setRejection(null);
 
     try {
       const response = await medvisionApi.analyzeImage(selectedFile);
+
+      // Gatekeeper rejected the image
+      if (response.status === 'rejected') {
+        setRejection(response);
+        return;  // Do NOT add to scan history
+      }
+
+      // Successful diagnostic classification
       setResult(response);
 
-      // Add to local history list
+      // Add to local history list (only valid X-ray scans)
       const newScan = {
         id: Date.now().toString(),
         fileName: selectedFile.name,
@@ -88,9 +101,14 @@ export const XRay = () => {
       };
       setScanHistory(prev => [newScan, ...prev]);
     } catch (err) {
-      console.error(err);
+      console.error("XRay Analysis Component caught error:", err);
+      const detail = err.response?.data?.detail;
+      const errorMsg = typeof detail === 'string'
+        ? detail
+        : (Array.isArray(detail) ? detail.map(d => d.msg || JSON.stringify(d)).join(', ') : null);
+      
       setError(
-        err.response?.data?.detail || 
+        errorMsg || 
         'Could not complete analysis. Ensure the FastAPI backend is running and the CV model is loaded.'
       );
     } finally {
@@ -117,7 +135,7 @@ export const XRay = () => {
       <div className="grid-2-col">
         {/* Left Column: Upload & Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)' }}>
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: 'auto', justifyContent: 'flex-start' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
               Upload Chest X-Ray
             </h2>
@@ -221,8 +239,48 @@ export const XRay = () => {
 
         {/* Right Column: Results & Scan History */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-24)' }}>
-          {/* Diagnostic Result Output */}
-          {result ? (
+          {/* Diagnostic Result Output / Rejection / Placeholder */}
+          {rejection ? (
+            // Gatekeeper rejection card
+            <div className="card rejection-card">
+              <div className="card-top">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '44px', borderRadius: '12px', backgroundColor: 'rgba(245, 158, 11, 0.1)', flexShrink: 0 }}>
+                    <ShieldOff size={22} style={{ color: '#D97706' }} />
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: '1.15rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2px' }}>
+                      Image Not Recognized
+                    </h2>
+                    <span style={{ fontSize: '0.8rem', fontWeight: '600', color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Upload Rejected
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: 'rgba(245, 158, 11, 0.04)', border: '1px solid rgba(245, 158, 11, 0.2)', marginTop: '8px', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: '500', marginBottom: '8px' }}>
+                    {rejection.message}
+                  </p>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    The gatekeeper model could not confirm this image as a chest radiograph. 
+                    Only anterior-posterior (AP) or posterior-anterior (PA) chest X-rays are accepted for pneumonia analysis.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                  <button 
+                    onClick={handleClear} 
+                    className="btn btn-secondary"
+                    style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+                  >
+                    <Trash2 size={16} />
+                    <span>Clear & Try Again</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : result ? (
             <div className="card" style={{ borderLeft: `6px solid ${result.label === 'PNEUMONIA' ? 'var(--danger)' : 'var(--success)'}` }}>
               <div className="card-top">
                 <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
@@ -230,12 +288,26 @@ export const XRay = () => {
                 </h2>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
-                  <span className={`badge-pill ${result.label === 'PNEUMONIA' ? 'badge-danger' : 'badge-success'}`} style={{ fontSize: '1.1rem', padding: '8px 20px', borderRadius: '8px' }}>
-                    {result.label}
-                  </span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-                    {result.confidence}% Confidence
-                  </span>
+                  <div
+                    className="confidence-badge-wrapper"
+                    tabIndex={0}
+                    role="button"
+                    aria-describedby={`confidence-tooltip-main`}
+                    onTouchStart={(e) => {
+                      e.currentTarget.classList.toggle('tooltip-active');
+                    }}
+                  >
+                    <span className={`badge-pill ${result.label === 'PNEUMONIA' ? 'badge-danger' : 'badge-success'}`} style={{ fontSize: '1.1rem', padding: '8px 20px', borderRadius: '8px' }}>
+                      {result.label}
+                    </span>
+                    <span
+                      id="confidence-tooltip-main"
+                      className="confidence-tooltip"
+                      role="tooltip"
+                    >
+                      Model confidence: <span className="confidence-value">{result.confidence}%</span> — this reflects how certain the AI is about this classification, not the probability of disease presence.
+                    </span>
+                  </div>
                 </div>
 
                 <div style={{ marginTop: '16px' }}>
@@ -324,12 +396,26 @@ export const XRay = () => {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                      <span className={`badge-pill ${scan.result === 'PNEUMONIA' ? 'badge-danger' : 'badge-success'}`} style={{ fontSize: '0.7rem', padding: '4px 8px' }}>
-                        {scan.result}
-                      </span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                        {scan.confidence}%
-                      </span>
+                      <div
+                        className="confidence-badge-wrapper confidence-badge-wrapper--sm"
+                        tabIndex={0}
+                        role="button"
+                        aria-describedby={`confidence-tooltip-${scan.id}`}
+                        onTouchStart={(e) => {
+                          e.currentTarget.classList.toggle('tooltip-active');
+                        }}
+                      >
+                        <span className={`badge-pill ${scan.result === 'PNEUMONIA' ? 'badge-danger' : 'badge-success'}`} style={{ fontSize: '0.7rem', padding: '4px 8px' }}>
+                          {scan.result}
+                        </span>
+                        <span
+                          id={`confidence-tooltip-${scan.id}`}
+                          className="confidence-tooltip"
+                          role="tooltip"
+                        >
+                          Model confidence: <span className="confidence-value">{scan.confidence}%</span> — this reflects how certain the AI is about this classification, not the probability of disease presence.
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
